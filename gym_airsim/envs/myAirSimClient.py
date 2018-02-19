@@ -2,13 +2,14 @@ import numpy as np
 import time
 import math
 import cv2
+import sys
 from pylab import array, arange, uint8 
 from PIL import Image
 import eventlet
 from eventlet import Timeout
 import multiprocessing as mp
 # Change the path below to point to the directoy where you installed the AirSim PythonClient
-#sys.path.append('C:/Users/Kjell/Google Drive/MASTER-THESIS/AirSimpy')
+#sys.path.append('C:/Users/Kjell/AirSimpy')
 
 from AirSimClient import *
 
