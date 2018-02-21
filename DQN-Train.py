@@ -57,11 +57,11 @@ model.add(Activation('linear'))
 print(model.summary())
 
 
-train = True
+train = False
 
 # Finally, we configure and compile our agent. You can use every built-in Keras optimizer and
 # even the metrics!
-memory = SequentialMemory(limit=100000, window_length=WINDOW_LENGTH)                        #reduce memmory
+memory = SequentialMemory(limit=2500, window_length=WINDOW_LENGTH)                        #reduce memmory
 
 
 # Select a policy. We use eps-greedy action selection, which means that a random action is selected
@@ -70,7 +70,7 @@ memory = SequentialMemory(limit=100000, window_length=WINDOW_LENGTH)            
 # (low eps). We also set a dedicated eps value that is used during testing. Note that we set it to 0.05c
 # so that the agent still performs some random actions. This ensures that the agent cannot get stuck.
 policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1., value_min=.1, value_test=0.0,
-                              nb_steps=100000)
+                              nb_steps=2500)
 
 dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=3000, 
                enable_double_dqn=True, 
@@ -87,9 +87,9 @@ if train:
     
     
     log_filename = 'dqn_{}_log.json'.format(args.env_name)
-    callbacks = [FileLogger(log_filename, interval=100)]
+    callbacks = [FileLogger(log_filename, interval=10)]
     
-    dqn.fit(env, callbacks=callbacks, nb_steps=251000, visualize=False, verbose=2, log_interval=100)
+    dqn.fit(env, callbacks=callbacks, nb_steps=6250, visualize=False, verbose=2, log_interval=100)
     
     
     # After training is done, we save the final weights.
@@ -100,3 +100,4 @@ else:
 
     dqn.load_weights('dqn_{}_weights.h5f'.format(args.env_name))
     dqn.test(env, nb_episodes=10, visualize=False)
+    
