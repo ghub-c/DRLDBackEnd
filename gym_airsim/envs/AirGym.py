@@ -1,11 +1,10 @@
 import logging
 import numpy as np
-import random
 
 import gym
 from gym import spaces
 from gym.utils import seeding
-from gym.spaces import Tuple, Box, Discrete, MultiDiscrete, Dict
+from gym.spaces import Box
 from gym.spaces.box import Box
 
 from gym_airsim.envs.myAirSimClient import *
@@ -100,6 +99,7 @@ class AirSimEnv(gym.Env):
         if distance < 3:
             done = True
             reward = 100.0
+            print("Endpoint reached")
         
         self.addToLog('reward', reward)
         rewardSum = np.sum(self.allLogs['reward'])
@@ -108,10 +108,10 @@ class AirSimEnv(gym.Env):
             
         # Terminate the episode on large cumulative amount penalties, 
         # since drone probably got into an unexpected loop of some sort
-        '''
-        if rewardSum < -100:
+        
+        if rewardSum < -200:
             done = True
-        '''
+        
         sys.stdout.write("\r\x1b[K{}/{}==>reward/depth: {:.1f}/{:.1f}   \t {:.0f}  {:.0f}".format(self.episodeN, self.stepN, reward, rewardSum, track, action))
         sys.stdout.flush()
         

@@ -168,30 +168,3 @@ class myAirSimClient(MultirotorClient):
         time.sleep(1)
         self.moveToZ(self.z, 3) 
         time.sleep(3)
-        
-    
-    def AirSim_reset_old(self):
-        
-        reset = False
-        z = -6.0
-        while reset != True:
-
-            now = self.getPosition()
-            self.simSetPose(Pose(Vector3r(now.x_val, now.y_val, -30),Quaternionr(self.home_ori.w_val, self.home_ori.x_val, self.home_ori.y_val, self.home_ori.z_val)), True) 
-            now = self.getPosition()
-            
-            if (now.z_val - (-30)) == 0:
-                self.simSetPose(Pose(Vector3r(self.home_pos.x_val, self.home_pos.y_val, -30),Quaternionr(self.home_ori.w_val, self.home_ori.x_val, self.home_ori.y_val, self.home_ori.z_val)), True)
-                now = self.getPosition()
-                
-                if (now.x_val - self.home_pos.x_val) == 0 and (now.y_val - self.home_pos.y_val) == 0 and (now.z_val - (-30)) == 0 :
-                    self.simSetPose(Pose(Vector3r(self.home_pos.x_val, self.home_pos.y_val, self.home_pos.z_val),Quaternionr(self.home_ori.w_val, self.home_ori.x_val, self.home_ori.y_val, self.home_ori.z_val)), True)
-                    now = self.getPosition()
-                    
-                    if (now.x_val - self.home_pos.x_val) == 0 and (now.y_val - self.home_pos.y_val) == 0 and (now.z_val - self.home_pos.z_val) == 0:
-                        reset = True
-                        self.moveByVelocity(0, 0, 0, 1)
-                        time.sleep(1)
-                        
-        self.moveToZ(z, 3)  
-        time.sleep(3)
