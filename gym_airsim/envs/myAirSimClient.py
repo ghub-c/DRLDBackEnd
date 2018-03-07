@@ -2,12 +2,8 @@ import numpy as np
 import time
 import math
 import cv2
-import sys
-from pylab import array, arange, uint8 
+from pylab import array, uint8 
 from PIL import Image
-import eventlet
-from eventlet import Timeout
-import multiprocessing as mp
 # Change the path below to point to the directoy where you installed the AirSim PythonClient
 #sys.path.append('C:/Users/Kjell/AirSimpy')
 
@@ -39,13 +35,8 @@ class myAirSimClient(MultirotorClient):
         start = time.time()
         return start, duration
     
-    def yaw_right(self, duration):
-        self.rotateByYawRate(30, duration)
-        start = time.time()
-        return start, duration
-    
-    def yaw_left(self, duration):
-        self.rotateByYawRate(-30, duration)
+    def yaw(self, degrees, duration):
+        self.rotateByYawRate(degrees, duration)
         start = time.time()
         return start, duration
     
@@ -70,38 +61,67 @@ class myAirSimClient(MultirotorClient):
 
         if action == 0:
 
-            start, duration = self.straight(1, 4)
+            #Go straight ahead during 1 second at 3m/s
+            start, duration = self.straight(1, 3)
         
             while duration > time.time() - start:
                 if self.getCollisionInfo().has_collided == True:
                     return True    
-                
-            self.moveByVelocity(0, 0, 0, 1)
-            self.rotateByYawRate(0, 1)
-            
             
         if action == 1:
          
-            start, duration = self.yaw_right(0.8)
+            #Yaw right 5° during 1 second
+            start, duration = self.yaw(5, 1)
             
             while duration > time.time() - start:
                 if self.getCollisionInfo().has_collided == True:
                     return True
             
-            self.moveByVelocity(0, 0, 0, 1)
-            self.rotateByYawRate(0, 1)
-            
         if action == 2:
             
-            start, duration = self.yaw_left(1)
+            #Yaw left 5° during 1 second
+            start, duration = self.yaw(-5, 1)
+            
+            while duration > time.time() - start:
+                if self.getCollisionInfo().has_collided == True:
+                    return True
+        
+        if action == 3:
+            
+            #Yaw right 15° during 1 second
+            start, duration = self.yaw(15, 1)
+            
+            while duration > time.time() - start:
+                if self.getCollisionInfo().has_collided == True:
+                    return True
+        
+        if action == 4:
+            
+            #Yaw left 15° during 1 second
+            start, duration = self.yaw(-15, 1)
             
             while duration > time.time() - start:
                 if self.getCollisionInfo().has_collided == True:
                     return True
                 
-            self.moveByVelocity(0, 0, 0, 1)
-            self.rotateByYawRate(0, 1)
+        if action == 5:
             
+            #Yaw right 30° during 1 second
+            start, duration = self.yaw(30, 1)
+            
+            while duration > time.time() - start:
+                if self.getCollisionInfo().has_collided == True:
+                    return True
+        
+        if action == 6:
+            
+            #Yaw left 30° during 1 second
+            start, duration = self.yaw(-30, 1)
+            
+            while duration > time.time() - start:
+                if self.getCollisionInfo().has_collided == True:
+                    return True        
+                
         return collided
     
     def goal_direction(self, goal, pos):

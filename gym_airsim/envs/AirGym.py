@@ -2,6 +2,7 @@ import logging
 import numpy as np
 
 import gym
+import sys
 from gym import spaces
 from gym.utils import seeding
 from gym.spaces import Box
@@ -23,7 +24,7 @@ class AirSimEnv(gym.Env):
         self.observation_space = spaces.Box(low=0, high=255, shape=(30, 100))
         self.state = np.zeros((30, 100), dtype=np.uint8)  
         
-        self.action_space = spaces.Discrete(3)
+        self.action_space = spaces.Discrete(7)
 		
         self.goal = 	[221.0, -9.0] # global xy coordinates
         

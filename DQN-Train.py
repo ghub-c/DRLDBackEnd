@@ -57,7 +57,7 @@ train = True
 
 # Finally, we configure and compile our agent. You can use every built-in Keras optimizer and
 # even the metrics!
-memory = SequentialMemory(limit=10000, window_length=WINDOW_LENGTH)                        #reduce memmory
+memory = SequentialMemory(limit=25000, window_length=WINDOW_LENGTH)                        #reduce memmory
 
 
 # Select a policy. We use eps-greedy action selection, which means that a random action is selected
@@ -66,7 +66,7 @@ memory = SequentialMemory(limit=10000, window_length=WINDOW_LENGTH)             
 # (low eps). We also set a dedicated eps value that is used during testing. Note that we set it to 0.05c
 # so that the agent still performs some random actions. This ensures that the agent cannot get stuck.
 policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1., value_min=.1, value_test=0.0,
-                              nb_steps=10000)
+                              nb_steps=25000)
 
 dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=50, 
                enable_double_dqn=True, 
@@ -80,23 +80,19 @@ if train:
     # Okay, now it's time to learn something! We visualize the training here for show, but this
     # slows down training quite a lot. You can always safely abort the training prematurely using
     # Ctrl + C.
-    weights_filename = 'dqn_{}_weights.h5f'.format(args.env_name)
-    checkpoint_weights_filename = 'checkpoint.h5f'
     
-   # earlystop = EarlyStopping(monitor='val_acc', patience= 10, verbose=1, mode='auto')
-    checkpoint = [ModelCheckpoint(checkpoint_weights_filename)]
-    #logger = CSVLogger('training.csv', separator=',', append=True)
-    callbacks = checkpoint
     
-    dqn.fit(env, callbacks=callbacks, nb_steps=25000, visualize=False, verbose=2, log_interval=100)
+    log_filename = 'dqn_{}_log.json'.format(args.env_name)
+    callbacks = [FileLogger(log_filename, interval=10)]
+    callbacks += [TrainEpisodeLogger()]
+    dqn.fit(env, callbacks=callbacks, nb_steps=62500, visualize=False, verbose=0, log_interval=100)
     
     
     # After training is done, we save the final weights.
-    dqn.save_weights(weights_filename, overwrite=True)
-
+    dqn.save_weights('dqn_{}_weights.h5f'.format(args.env_name), overwrite=True)
 
 else:
 
-    dqn.load_weights('checkpoint.h5f'.format(args.env_name))
+    dqn.load_weights('checkpoint_reward_-93.7112669617932.h5f'.format(args.env_name))
     dqn.test(env, nb_episodes=10, visualize=False)
     
