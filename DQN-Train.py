@@ -53,7 +53,7 @@ model.add(Activation('linear'))
 print(model.summary())
 
 
-train = True
+train = False
 
 # Finally, we configure and compile our agent. You can use every built-in Keras optimizer and
 # even the metrics!
@@ -85,7 +85,7 @@ if train:
     log_filename = 'dqn_{}_log.json'.format(args.env_name)
     callbacks = [FileLogger(log_filename, interval=10)]
     callbacks += [TrainEpisodeLogger()]
-    dqn.fit(env, callbacks=callbacks, nb_steps=62500, visualize=False, verbose=0, log_interval=100)
+    dqn.fit(env, callbacks=callbacks, nb_steps=75000, visualize=False, verbose=0, log_interval=100)
     
     
     # After training is done, we save the final weights.
@@ -93,6 +93,6 @@ if train:
 
 else:
 
-    dqn.load_weights('checkpoint_reward_-93.7112669617932.h5f'.format(args.env_name))
-    dqn.test(env, nb_episodes=10, visualize=False)
+    dqn.load_weights('checkpoint_reward_180.15931910639895.h5f')
+    dqn.test(env, nb_episodes=100, visualize=False)
     
