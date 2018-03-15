@@ -26,7 +26,7 @@ class AirSimEnv(gym.Env):
         
         self.action_space = spaces.Discrete(3)
 		
-        self.goal = 	[221.0, -9.0] # global xy coordinates
+        self.goal = 	[4320.0, -3840.0] # global xy coordinates
         
         
         self.episodeN = 0
@@ -59,14 +59,6 @@ class AirSimEnv(gym.Env):
               
         r = -1
         
-        """
-        if abs(distance_now - distance_before) < 0.0001:
-            r = r - 2.0
-            #Check if last 4 positions are the same. Is the copter actually moving?
-            if self.stepN > 5 and len(set(self.allLogs['distance'][len(self.allLogs['distance']):len(self.allLogs['distance'])-5:-1])) == 1: 
-                r = r - 50
-        """  
-            
         r = r + (distance_before - distance_now)
             
         return r, distance_now
@@ -88,10 +80,7 @@ class AirSimEnv(gym.Env):
             done = True
             reward = -100.0
             distance = np.sqrt(np.power((self.goal[0]-now.x_val),2) + np.power((self.goal[1]-now.y_val),2))
-        elif collided == 99:
-            done = True
-            reward = 0.0
-            distance = np.sqrt(np.power((self.goal[0]-now.x_val),2) + np.power((self.goal[1]-now.y_val),2))
+       
         else: 
             done = False
             reward, distance = self.computeReward(now, track)
