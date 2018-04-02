@@ -26,7 +26,7 @@ class AirSimEnv(gym.Env):
         
         self.action_space = spaces.Discrete(3)
 		
-        self.goal = 	[4320.0, -3840.0] # global xy coordinates
+        self.goal = 	[221.0, -9.0] # global xy coordinates
         
         
         self.episodeN = 0
@@ -100,10 +100,8 @@ class AirSimEnv(gym.Env):
             
         # Terminate the episode on large cumulative amount penalties, 
         # since drone probably got into an unexpected loop of some sort
-        '''
-        if rewardSum < -200:
-            done = True
-        '''
+        
+       
         sys.stdout.write("\r\x1b[K{}/{}==>reward/depth: {:.1f}/{:.1f}   \t {:.0f}  {:.0f}".format(self.episodeN, self.stepN, reward, rewardSum, track, action))
         sys.stdout.flush()
         

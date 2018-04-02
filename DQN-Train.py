@@ -5,7 +5,7 @@ import gym
 
 import gym_airsim.envs
 import gym_airsim
-
+from keras.callbacks import TensorBoard
 
 import argparse
 
@@ -18,7 +18,7 @@ from rl.agents.dqn import DQNAgent
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 
-from callbacks import *
+from callbacks import TrainEpisodeLogger, FileLogger
 
 
 parser = argparse.ArgumentParser()
@@ -53,11 +53,11 @@ model.add(Activation('linear'))
 print(model.summary())
 
 
-train = False
+train = True
 
 # Finally, we configure and compile our agent. You can use every built-in Keras optimizer and
 # even the metrics!
-memory = SequentialMemory(limit=25000, window_length=WINDOW_LENGTH)                        #reduce memmory
+memory = SequentialMemory(limit=50000, window_length=WINDOW_LENGTH)                        #reduce memmory
 
 
 # Select a policy. We use eps-greedy action selection, which means that a random action is selected
@@ -66,7 +66,7 @@ memory = SequentialMemory(limit=25000, window_length=WINDOW_LENGTH)             
 # (low eps). We also set a dedicated eps value that is used during testing. Note that we set it to 0.05c
 # so that the agent still performs some random actions. This ensures that the agent cannot get stuck.
 policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1., value_min=.1, value_test=0.0,
-                              nb_steps=25000)
+                              nb_steps=50000)
 
 dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=50, 
                enable_double_dqn=True, 
@@ -83,9 +83,8 @@ if train:
     
     
     log_filename = 'dqn_{}_log.json'.format(args.env_name)
-    callbacks = [FileLogger(log_filename, interval=10)]
-    callbacks += [TrainEpisodeLogger()]
-    dqn.fit(env, callbacks=callbacks, nb_steps=75000, visualize=False, verbose=0, log_interval=100)
+    callbacks = TensorBoard(log_dir='.')
+    dqn.fit(env, callbacks=[callbacks], nb_steps=150000, visualize=False, verbose=0, log_interval=100)
     
     
     # After training is done, we save the final weights.
@@ -93,6 +92,6 @@ if train:
 
 else:
 
-    dqn.load_weights('checkpoint_reward_180.15931910639895.h5f')
+    dqn.load_weights('dqn_AirSimEnv-v42_weights.h5f')
     dqn.test(env, nb_episodes=100, visualize=False)
     

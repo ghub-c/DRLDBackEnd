@@ -47,8 +47,8 @@ class myAirSimClient(MultirotorClient):
     
     
     def take_action(self, action):
-		
-        #check if copter is on level cause sometimes he goes up without a reason
+        
+		 #check if copter is on level cause sometimes he goes up without a reason
         x = 0
         while self.getPosition().z_val < -7.0:
             self.moveToZ(-6, 3)
@@ -56,8 +56,8 @@ class myAirSimClient(MultirotorClient):
             print(self.getPosition().z_val, "and", x)
             x = x + 1
             if x > 10:
-                return True        
-        
+                return True 
+     
     
         start = time.time()
         duration = 0 
