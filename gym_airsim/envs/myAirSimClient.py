@@ -4,8 +4,7 @@ import math
 import cv2
 from pylab import array, uint8 
 from PIL import Image
-# Change the path below to point to the directoy where you installed the AirSim PythonClient
-#sys.path.append('C:/Users/Kjell/AirSimpy')
+
 
 from AirSimClient import *
 
@@ -25,7 +24,7 @@ class myAirSimClient(MultirotorClient):
     
         self.home_ori = self.getOrientation()
         
-        self.z = -6
+        self.z = -4
     
     def straight(self, duration, speed):
         pitch, roll, yaw  = self.getPitchRollYaw()
@@ -50,8 +49,8 @@ class myAirSimClient(MultirotorClient):
         
 		 #check if copter is on level cause sometimes he goes up without a reason
         x = 0
-        while self.getPosition().z_val < -7.0:
-            self.moveToZ(-6, 3)
+        while self.getPosition().z_val < -5.0:
+            self.moveToZ(-4, 3)
             time.sleep(1)
             print(self.getPosition().z_val, "and", x)
             x = x + 1
@@ -63,17 +62,18 @@ class myAirSimClient(MultirotorClient):
         duration = 0 
         
         collided = False
-
+        outside = self.geofence()
+        
         if action == 0:
 
             start, duration = self.straight(1, 4)
         
             while duration > time.time() - start:
                 if self.getCollisionInfo().has_collided == True:
-                    return True    
+                    return True
+                if outside == True:
+                    return True
                 
-            self.moveByVelocity(0, 0, 0, 1)
-            self.rotateByYawRate(0, 1)
             
             
         if action == 1:
@@ -83,9 +83,9 @@ class myAirSimClient(MultirotorClient):
             while duration > time.time() - start:
                 if self.getCollisionInfo().has_collided == True:
                     return True
-            
-            self.moveByVelocity(0, 0, 0, 1)
-            self.rotateByYawRate(0, 1)
+                if outside == True:
+                    return True
+                
             
         if action == 2:
             
@@ -94,12 +94,34 @@ class myAirSimClient(MultirotorClient):
             while duration > time.time() - start:
                 if self.getCollisionInfo().has_collided == True:
                     return True
+                if outside == True:
+                    return True
                 
-            self.moveByVelocity(0, 0, 0, 1)
-            self.rotateByYawRate(0, 1)
+        
             
         return collided
     
+    def geofence(self):
+        
+        outside = False
+        
+        if (self.getPosition().x_val < -1) or (self.getPosition().x_val > 130):
+                    return True
+        if (self.getPosition().y_val < -10) or (self.getPosition().y_val > 8):
+                    return True
+                
+        return outside
+    
+    def arrived(self):
+        
+        landed = self.moveToZ(0, 1)
+    
+        if landed == True:
+            return landed
+        
+        if (self.getPosition().z_val > -1):
+            return True
+        
     def goal_direction(self, goal, pos):
         
         pitch, roll, yaw  = self.getPitchRollYaw()

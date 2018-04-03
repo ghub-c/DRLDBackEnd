@@ -26,14 +26,13 @@ class AirSimEnv(gym.Env):
         
         self.action_space = spaces.Discrete(3)
 		
-        self.goal = 	[221.0, -9.0] # global xy coordinates
-        
+        self.goal = 	[10.0, 0.0]
         
         self.episodeN = 0
         self.stepN = 0 
         
         self.allLogs = { 'reward':[0] }
-        self.allLogs['distance'] = [221]
+        self.allLogs['distance'] = [30]
         self.allLogs['track'] = [-2]
         self.allLogs['action'] = [1]
 
@@ -87,10 +86,13 @@ class AirSimEnv(gym.Env):
         
         # Youuuuu made it
         if distance < 3:
-            done = True
-            reward = 100.0
-            with open("reached.txt", "a") as myfile:
-                myfile.write(str(self.episodeN) + ", ")
+            landed = airgym.arrived()
+            if landed == True:
+                done = True
+                reward = 100.0
+            
+                with open("reached.txt", "a") as myfile:
+                    myfile.write(str(self.episodeN) + ", ")
             
         
         self.addToLog('reward', reward)
@@ -100,7 +102,8 @@ class AirSimEnv(gym.Env):
             
         # Terminate the episode on large cumulative amount penalties, 
         # since drone probably got into an unexpected loop of some sort
-        
+        if rewardSum < -300:
+            done = True
        
         sys.stdout.write("\r\x1b[K{}/{}==>reward/depth: {:.1f}/{:.1f}   \t {:.0f}  {:.0f}".format(self.episodeN, self.stepN, reward, rewardSum, track, action))
         sys.stdout.flush()

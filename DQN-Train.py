@@ -83,8 +83,7 @@ if train:
     
     
     log_filename = 'dqn_{}_log.json'.format(args.env_name)
-    callbacks = TensorBoard(log_dir='.')
-    dqn.fit(env, callbacks=[callbacks], nb_steps=150000, visualize=False, verbose=0, log_interval=100)
+    dqn.fit(env, nb_steps=150000, visualize=False, verbose=0, log_interval=100)
     
     
     # After training is done, we save the final weights.
