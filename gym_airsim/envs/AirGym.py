@@ -21,18 +21,18 @@ class AirSimEnv(gym.Env):
         
     def __init__(self):
         # left depth, center depth, right depth, yaw
-        self.observation_space = spaces.Box(low=0, high=255, shape=(30, 100))
+        self.ation_space = spaces.Box(low=0, high=255, shape=(30, 100))
         self.state = np.zeros((30, 100), dtype=np.uint8)  
         
         self.action_space = spaces.Discrete(3)
 		
-        self.goal = 	[10.0, 0.0]
+        self.goal = 	[6.83, -95.41]
         
         self.episodeN = 0
         self.stepN = 0 
         
         self.allLogs = { 'reward':[0] }
-        self.allLogs['distance'] = [30]
+        self.allLogs['distance'] = [95.654]
         self.allLogs['track'] = [-2]
         self.allLogs['action'] = [1]
 
@@ -135,7 +135,7 @@ class AirSimEnv(gym.Env):
         self.episodeN += 1
         
         self.allLogs = { 'reward': [0] }
-        self.allLogs['distance'] = [221]
+        self.allLogs['distance'] = [95.654]
         self.allLogs['track'] = [-2]
         self.allLogs['action'] = [1]
         

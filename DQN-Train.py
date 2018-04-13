@@ -5,20 +5,18 @@ import gym
 
 import gym_airsim.envs
 import gym_airsim
-from keras.callbacks import TensorBoard
 
 import argparse
 
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten, Conv2D
 from keras.optimizers import Adam
+from keras.callbacks import TensorBoard
 
 
 from rl.agents.dqn import DQNAgent
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
-
-from callbacks import TrainEpisodeLogger, FileLogger
 
 
 parser = argparse.ArgumentParser()
@@ -52,12 +50,11 @@ model.add(Dense(nb_actions))
 model.add(Activation('linear'))
 print(model.summary())
 
-
 train = True
 
 # Finally, we configure and compile our agent. You can use every built-in Keras optimizer and
 # even the metrics!
-memory = SequentialMemory(limit=50000, window_length=WINDOW_LENGTH)                        #reduce memmory
+memory = SequentialMemory(limit=60000, window_length=WINDOW_LENGTH)                        #reduce memmory
 
 
 # Select a policy. We use eps-greedy action selection, which means that a random action is selected
@@ -66,7 +63,7 @@ memory = SequentialMemory(limit=50000, window_length=WINDOW_LENGTH)             
 # (low eps). We also set a dedicated eps value that is used during testing. Note that we set it to 0.05c
 # so that the agent still performs some random actions. This ensures that the agent cannot get stuck.
 policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1., value_min=.1, value_test=0.0,
-                              nb_steps=50000)
+                              nb_steps=60000)
 
 dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=50, 
                enable_double_dqn=True, 
@@ -75,15 +72,14 @@ dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmu
 
 dqn.compile(Adam(lr=0.00025), metrics=['mae'])
 
-
 if train:
     # Okay, now it's time to learn something! We visualize the training here for show, but this
     # slows down training quite a lot. You can always safely abort the training prematurely using
     # Ctrl + C.
     
-    
-    log_filename = 'dqn_{}_log.json'.format(args.env_name)
-    dqn.fit(env, nb_steps=150000, visualize=False, verbose=0, log_interval=100)
+    tb_log_dir = 'logs/tmp'
+    callbacks = [TensorBoard(log_dir=tb_log_dir, histogram_freq=0)]
+    dqn.fit(env, callbacks=callbacks, nb_steps=150000, visualize=False, verbose=0, log_interval=100)
     
     
     # After training is done, we save the final weights.
@@ -92,5 +88,5 @@ if train:
 else:
 
     dqn.load_weights('dqn_AirSimEnv-v42_weights.h5f')
-    dqn.test(env, nb_episodes=100, visualize=False)
+    dqn.test(env, nb_episodes=10, visualize=False)
     

@@ -25,7 +25,7 @@ class myAirSimClient(MultirotorClient):
         self.home_ori = self.getOrientation()
         
         self.z = -4
-    
+        
     def straight(self, duration, speed):
         pitch, roll, yaw  = self.getPitchRollYaw()
         vx = math.cos(yaw) * speed
@@ -70,21 +70,24 @@ class myAirSimClient(MultirotorClient):
         
             while duration > time.time() - start:
                 if self.getCollisionInfo().has_collided == True:
-                    return True
+                    return True    
                 if outside == True:
                     return True
-                
+            self.moveByVelocity(0, 0, 0, 1)
+            self.rotateByYawRate(0, 1)
             
             
         if action == 1:
          
-            start, duration = self.yaw_right(0.8)
+           start, duration = self.yaw_right(0.8)
             
-            while duration > time.time() - start:
+           while duration > time.time() - start:
                 if self.getCollisionInfo().has_collided == True:
                     return True
                 if outside == True:
                     return True
+           self.moveByVelocity(0, 0, 0, 1)
+           self.rotateByYawRate(0, 1)
                 
             
         if action == 2:
@@ -97,17 +100,21 @@ class myAirSimClient(MultirotorClient):
                 if outside == True:
                     return True
                 
-        
+            self.moveByVelocity(0, 0, 0, 1)
+            self.rotateByYawRate(0, 1)
+                
             
+        
+                
         return collided
     
     def geofence(self):
         
         outside = False
         
-        if (self.getPosition().x_val < -1) or (self.getPosition().x_val > 130):
+        if (self.getPosition().x_val < -10) or (self.getPosition().x_val > 10):
                     return True
-        if (self.getPosition().y_val < -10) or (self.getPosition().y_val > 8):
+        if (self.getPosition().y_val < -120) or (self.getPosition().y_val > 5):
                     return True
                 
         return outside
