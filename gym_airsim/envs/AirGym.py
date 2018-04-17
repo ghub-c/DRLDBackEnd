@@ -20,9 +20,24 @@ class AirSimEnv(gym.Env):
     airgym = None
         
     def __init__(self):
-        # left depth, center depth, right depth, yaw
-        self.ation_space = spaces.Box(low=0, high=255, shape=(30, 100))
-        self.state = np.zeros((30, 100), dtype=np.uint8)  
+        
+        
+        self.observation_space = spaces.Dict({"image": spaces.Box(low=0, high=255, shape=(30,100)),
+                                              "position": spaces.Box(low=-150, high=150, shape=(2,)),
+                                              "distance": spaces.Box(low=0, high=200, shape=(3,)),
+                                              "geofence": spaces.Box(low=0, high=200, shape=(4,))
+                                              })
+        
+        self.simage = np.zeros((30, 100), dtype=np.uint8)
+        self.sposition = np.zeros((2,), dtype=np.uint8)
+        self.sdistance = np.zeros((3,), dtype=np.uint8),
+        self.sgeofence = np.zeros((4,), dtype=np.uint8)
+        
+        self.state = {'image': self.simage,
+                      'position': self.sposition,
+                      'distance': self.sdistance,
+                      'geofence': self.sgeofence
+                      }
         
         self.action_space = spaces.Discrete(3)
 		

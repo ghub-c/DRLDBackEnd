@@ -37,7 +37,7 @@ INPUT_SHAPE = (30, 100)
 WINDOW_LENGTH = 1
 # Next, we build our model. We use the same model that was described by Mnih et al. (2015).
 input_shape = (WINDOW_LENGTH,) + INPUT_SHAPE
-
+print (input_shape)
 
 model = Sequential()
 model.add(Conv2D(32, (4, 4), strides=(4, 4) ,activation='relu', input_shape=input_shape, data_format = "channels_first"))

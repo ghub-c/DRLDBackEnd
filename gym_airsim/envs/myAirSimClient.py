@@ -1,4 +1,5 @@
 import numpy as np
+from operator import itemgetter
 import time
 import math
 import cv2
@@ -23,6 +24,11 @@ class myAirSimClient(MultirotorClient):
         self.home_pos = self.getPosition()
     
         self.home_ori = self.getOrientation()
+        
+        self.minx = -10
+        self.maxx = 10
+        self.miny = -120
+        self.maxy = 5
         
         self.z = -4
         
@@ -62,7 +68,7 @@ class myAirSimClient(MultirotorClient):
         duration = 0 
         
         collided = False
-        outside = self.geofence()
+        outside = self.geofence(self.minx, self.maxx, self.miny, self.maxy)
         
         if action == 0:
 
@@ -108,13 +114,13 @@ class myAirSimClient(MultirotorClient):
                 
         return collided
     
-    def geofence(self):
+    def geofence(self, minx, maxx, miny, maxy):
         
         outside = False
         
-        if (self.getPosition().x_val < -10) or (self.getPosition().x_val > 10):
+        if (self.getPosition().x_val < minx) or (self.getPosition().x_val > maxx):
                     return True
-        if (self.getPosition().y_val < -120) or (self.getPosition().y_val > 5):
+        if (self.getPosition().y_val < miny) or (self.getPosition().y_val > maxy):
                     return True
                 
         return outside
@@ -139,8 +145,31 @@ class myAirSimClient(MultirotorClient):
 
         track = math.radians(pos_angle - yaw)  
         
-        return ((math.degrees(track) - 180) % 360) - 180    
+        return ((math.degrees(track) - 180) % 360) - 180   
     
+    
+    def mapPosition(self):
+        
+        xval = self.getPosition().x_val
+        yval = self.getPosition().y_val
+        
+        position = np.array([xval, yval])
+        
+        return position
+    
+    def mapDistance(self, goal):
+        
+        x = [0]
+        y = [1]
+        goalx = itemgetter(*x)(goal)
+        goaly = itemgetter(*y)(goal)
+
+        xdistance = (goalx - (self.getPosition().x_val))
+        ydistance = (goaly - (self.getPosition().y_val))
+        
+        distances = np.array([xdistance, ydistance])
+        
+        return distances
     
     def getScreenDepthVis(self, track):
 
@@ -155,16 +184,20 @@ class myAirSimClient(MultirotorClient):
         factor = 10
         maxIntensity = 255.0 # depends on dtype of image data
         
+        
         # Decrease intensity such that dark pixels become much darker, bright pixels become slightly dark 
         newImage1 = (maxIntensity)*(image/maxIntensity)**factor
         newImage1 = array(newImage1,dtype=uint8)
         
         
         small = cv2.resize(newImage1, (0,0), fx=0.39, fy=0.38)
-                
+        
+       
         cut = small[20:40,:]
         
+        print(cut.shape)
         info_section = np.zeros((10,cut.shape[1]),dtype=np.uint8) + 255
+        print(info_section)
         info_section[9,:] = 0
         
         line = np.int((((track - -180) * (100 - 0)) / (180 - -180)) + 0)
@@ -175,12 +208,14 @@ class myAirSimClient(MultirotorClient):
             info_section[:,0:3]  = 0
         elif line == 100:
             info_section[:,info_section.shape[1]-3:info_section.shape[1]]  = 0
-            
+           
+        print(info_section.shape)
         total = np.concatenate((info_section, cut), axis=0)
-            
+        print(total.shape)
+        
         #cv2.imshow("Test", total)
         #cv2.waitKey(0)
-        
+
         return total
 
 
