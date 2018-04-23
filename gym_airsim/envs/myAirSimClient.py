@@ -25,6 +25,7 @@ class myAirSimClient(MultirotorClient):
     
         self.home_ori = self.getOrientation()
         
+        #Define your geofence inside the map
         self.minx = -10
         self.maxx = 10
         self.miny = -120
@@ -157,17 +158,31 @@ class myAirSimClient(MultirotorClient):
         
         return position
     
+    def mapGeofence(self):
+        
+        xpos = self.getPosition().x_val
+        ypos = self.getPosition().y_val
+        
+        geox1 = xpos - self.maxx
+        geox2 = xpos - self.minx
+        geoy1 = ypos - self.maxy
+        geoy2 = ypos - self.miny
+        
+        geofence = np.array([geox1, geox2, geoy1, geoy2])
+        
+        return geofence
+    
     def mapDistance(self, goal):
         
         x = [0]
         y = [1]
         goalx = itemgetter(*x)(goal)
         goaly = itemgetter(*y)(goal)
-
         xdistance = (goalx - (self.getPosition().x_val))
         ydistance = (goaly - (self.getPosition().y_val))
+        meandistance = np.sqrt(np.power((goalx -self.getPosition().x_val),2) + np.power((goaly - self.getPosition().y_val),2))
         
-        distances = np.array([xdistance, ydistance])
+        distances = np.array([xdistance, ydistance, meandistance])
         
         return distances
     
@@ -195,9 +210,9 @@ class myAirSimClient(MultirotorClient):
        
         cut = small[20:40,:]
         
-        print(cut.shape)
+        
         info_section = np.zeros((10,cut.shape[1]),dtype=np.uint8) + 255
-        print(info_section)
+       
         info_section[9,:] = 0
         
         line = np.int((((track - -180) * (100 - 0)) / (180 - -180)) + 0)
@@ -209,9 +224,8 @@ class myAirSimClient(MultirotorClient):
         elif line == 100:
             info_section[:,info_section.shape[1]-3:info_section.shape[1]]  = 0
            
-        print(info_section.shape)
         total = np.concatenate((info_section, cut), axis=0)
-        print(total.shape)
+     
         
         #cv2.imshow("Test", total)
         #cv2.waitKey(0)

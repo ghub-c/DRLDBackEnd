@@ -30,17 +30,15 @@ env = gym.make(args.env_name)
 np.random.seed(123)
 env.seed(123)
 nb_actions = env.action_space.n
+print(env.observation_space)
 
 
-# Next, we build our model. We use the same model that was described by Mnih et al. (2015).
-INPUT_SHAPE = (30, 100)
 WINDOW_LENGTH = 1
-# Next, we build our model. We use the same model that was described by Mnih et al. (2015).
-input_shape = (WINDOW_LENGTH,) + INPUT_SHAPE
-print (input_shape)
+window_shape = (1,)
+img_shape = (30, 100)
 
 model = Sequential()
-model.add(Conv2D(32, (4, 4), strides=(4, 4) ,activation='relu', input_shape=input_shape, data_format = "channels_first"))
+model.add(Conv2D(32, (4, 4), strides=(4, 4) ,activation='relu', input_shape=window_shape + img_shape, data_format = "channels_first"))
 model.add(Conv2D(64, (3, 3), strides=(2, 2),  activation='relu'))
 model.add(Conv2D(64, (1, 1), strides=(1, 1),  activation='relu'))
 model.add(Flatten())
@@ -89,4 +87,5 @@ else:
 
     dqn.load_weights('dqn_AirSimEnv-v42_weights.h5f')
     dqn.test(env, nb_episodes=10, visualize=False)
-    
+
+

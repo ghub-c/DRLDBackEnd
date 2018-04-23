@@ -24,14 +24,14 @@ class AirSimEnv(gym.Env):
         
         self.observation_space = spaces.Dict({"image": spaces.Box(low=0, high=255, shape=(30,100)),
                                               "position": spaces.Box(low=-150, high=150, shape=(2,)),
-                                              "distance": spaces.Box(low=0, high=200, shape=(3,)),
-                                              "geofence": spaces.Box(low=0, high=200, shape=(4,))
+                                              "distance": spaces.Box(low=-200, high=200, shape=(3,)),
+                                              "geofence": spaces.Box(low=-200, high=200, shape=(4,))
                                               })
         
         self.simage = np.zeros((30, 100), dtype=np.uint8)
-        self.sposition = np.zeros((2,), dtype=np.uint8)
-        self.sdistance = np.zeros((3,), dtype=np.uint8),
-        self.sgeofence = np.zeros((4,), dtype=np.uint8)
+        self.sposition = np.zeros((2,), dtype=np.float32)
+        self.sdistance = np.zeros((3,), dtype=np.float32),
+        self.sgeofence = np.zeros((4,), dtype=np.float32)
         
         self.state = {'image': self.simage,
                       'position': self.sposition,
@@ -124,8 +124,12 @@ class AirSimEnv(gym.Env):
         sys.stdout.flush()
         
         info = {"x_pos" : now.x_val, "y_pos" : now.y_val}
-        self.state = airgym.getScreenDepthVis(track)
-
+        
+        self.simage = airgym.getScreenDepthVis(track)
+        self.sposition = airgym.mapPosition()
+        self.sdistance = airgym.mapDistance(self.goal)
+        self.sgeofence = airgym.mapGeofence()
+        
         return self.state, reward, done, info
 
     def addToLog (self, key, value):
@@ -158,6 +162,12 @@ class AirSimEnv(gym.Env):
         
         now = airgym.getPosition()
         track = airgym.goal_direction(self.goal, now)
-        self.state = airgym.getScreenDepthVis(track)
+        
+        self.simage = airgym.getScreenDepthVis(track)
+        self.sposition = airgym.mapPosition()
+        self.sdistance = airgym.mapDistance(self.goal)
+        self.sgeofence = airgym.mapGeofence()
+        
+        print(self.state)
         
         return self.state
