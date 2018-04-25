@@ -22,22 +22,13 @@ class AirSimEnv(gym.Env):
     def __init__(self):
         
         
-        self.observation_space = spaces.Dict({"image": spaces.Box(low=0, high=255, shape=(30,100)),
-                                              "position": spaces.Box(low=-150, high=150, shape=(2,)),
-                                              "distance": spaces.Box(low=-200, high=200, shape=(3,)),
-                                              "geofence": spaces.Box(low=-200, high=200, shape=(4,))
-                                              })
         
         self.simage = np.zeros((30, 100), dtype=np.uint8)
         self.sposition = np.zeros((2,), dtype=np.float32)
-        self.sdistance = np.zeros((3,), dtype=np.float32),
+        self.sdistance = np.zeros((3,), dtype=np.float32)
         self.sgeofence = np.zeros((4,), dtype=np.float32)
         
-        self.state = {'image': self.simage,
-                      'position': self.sposition,
-                      'distance': self.sdistance,
-                      'geofence': self.sgeofence
-                      }
+        self.observation_space = self.state()
         
         self.action_space = spaces.Discrete(3)
 		
@@ -61,6 +52,10 @@ class AirSimEnv(gym.Env):
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
+    
+    def state(self):
+        
+        return self.simage, self.sposition, self.sdistance, self.sgeofence
         
     def computeReward(self, now, track_now):
 	
@@ -130,7 +125,9 @@ class AirSimEnv(gym.Env):
         self.sdistance = airgym.mapDistance(self.goal)
         self.sgeofence = airgym.mapGeofence()
         
-        return self.state, reward, done, info
+        state = self.state()
+        
+        return state, reward, done, info
 
     def addToLog (self, key, value):
         if key not in self.allLogs:
@@ -158,7 +155,6 @@ class AirSimEnv(gym.Env):
         self.allLogs['track'] = [-2]
         self.allLogs['action'] = [1]
         
-        print("")
         
         now = airgym.getPosition()
         track = airgym.goal_direction(self.goal, now)
@@ -168,6 +164,6 @@ class AirSimEnv(gym.Env):
         self.sdistance = airgym.mapDistance(self.goal)
         self.sgeofence = airgym.mapGeofence()
         
-        print(self.state)
+        state = self.state()
         
-        return self.state
+        return state

@@ -8,8 +8,8 @@ import gym_airsim
 
 import argparse
 
-from keras.models import Sequential
-from keras.layers import Dense, Activation, Flatten, Conv2D
+from keras.models import Model, Sequential
+from keras.layers import Input, Reshape, Dense, Flatten, Conv2D, concatenate
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard
 
@@ -17,7 +17,7 @@ from keras.callbacks import TensorBoard
 from rl.agents.dqn import DQNAgent
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
-
+from rl.processors import MultiInputProcessor
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--mode', choices=['train', 'test'], default='train')
@@ -25,35 +25,63 @@ parser.add_argument('--env-name', type=str, default='AirSimEnv-v42')
 parser.add_argument('--weights', type=str, default=None)
 args = parser.parse_args()
 
-# Get the environment and extract the number of actions.
+
 env = gym.make(args.env_name)
 np.random.seed(123)
 env.seed(123)
 nb_actions = env.action_space.n
-print(env.observation_space)
 
 
-WINDOW_LENGTH = 1
-window_shape = (1,)
-img_shape = (30, 100)
+#Obtaining shapes from Gym environment
+img_shape = env.simage.shape
+pos_shape = env.sposition.shape
+dst_shape = env.sdistance.shape
+geo_shape = env.sgeofence.shape
 
-model = Sequential()
-model.add(Conv2D(32, (4, 4), strides=(4, 4) ,activation='relu', input_shape=window_shape + img_shape, data_format = "channels_first"))
-model.add(Conv2D(64, (3, 3), strides=(2, 2),  activation='relu'))
-model.add(Conv2D(64, (1, 1), strides=(1, 1),  activation='relu'))
-model.add(Flatten())
-model.add(Dense(512))
-model.add(Activation('relu'))
-model.add(Dense(nb_actions))
-model.add(Activation('linear'))
-print(model.summary())
+#Keras-rl interprets an extra dimension at axis=0
+#added on to our observations, so we need to take it into account
+img_kshape = (1,) + img_shape
+
+#Sequential model for convolutional layers applied to image
+image_model = Sequential()
+image_model.add(Conv2D(32, (4, 4), strides=(4, 4) ,activation='relu', input_shape=img_kshape, data_format = "channels_first"))
+image_model.add(Conv2D(64, (3, 3), strides=(2, 2),  activation='relu'))
+image_model.add(Flatten())
+
+#Input and output of the Sequential model
+image_input = Input(img_kshape)
+encoded_image = image_model(image_input)
+
+#Inputs and reshaped tensors for concatenate after with the image
+position_input = Input((1,) + pos_shape)
+distance_input = Input((1,) + dst_shape)
+geofence_input = Input((1,) + geo_shape)
+pos = Reshape(pos_shape)(position_input)
+dst = Reshape(dst_shape)(distance_input)
+geo = Reshape(geo_shape)(geofence_input)
+
+
+#Concatenation of image, position, distance and geofence values.
+#3 dense layers of 256 units
+denses = concatenate([encoded_image, pos, dst, geo])
+denses = Dense(256, activation='relu')(denses)
+denses = Dense(256, activation='relu')(denses)
+denses = Dense(256, activation='relu')(denses)
+#Last dense layer with nb_actions for the output
+predictions = Dense(nb_actions, kernel_initializer='zeros', activation='linear')(denses)
+
+model = Model(
+        inputs=[image_input, position_input, distance_input, geofence_input],
+        outputs=predictions
+        )
 
 train = True
 
 # Finally, we configure and compile our agent. You can use every built-in Keras optimizer and
 # even the metrics!
-memory = SequentialMemory(limit=60000, window_length=WINDOW_LENGTH)                        #reduce memmory
+memory = SequentialMemory(limit=60000, window_length=1)                        #reduce memmory
 
+processor = MultiInputProcessor(nb_inputs=4)
 
 # Select a policy. We use eps-greedy action selection, which means that a random action is selected
 # with probability eps. We anneal eps from 1.0 to 0.1 over the course of 1M steps. This is done so that
@@ -63,8 +91,8 @@ memory = SequentialMemory(limit=60000, window_length=WINDOW_LENGTH)             
 policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1., value_min=.1, value_test=0.0,
                               nb_steps=60000)
 
-dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=50, 
-               enable_double_dqn=True, 
+dqn = DQNAgent(model=model, processor=processor, nb_actions=nb_actions, memory=memory, nb_steps_warmup=50, 
+               enable_double_dqn=False, 
                enable_dueling_network=False, dueling_type='avg', 
                target_model_update=1e-2, policy=policy, gamma=.99)
 

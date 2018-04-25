@@ -1,9 +1,23 @@
-from operator import itemgetter
+# -*- coding: utf-8 -*-
 
-goal = [6.83, -95.41]
+import numpy as np
+import gym
 
-pos = [1]
+import gym_airsim.envs
+import gym_airsim
 
-valor = itemgetter(*pos)(goal)
+import argparse
 
-print(valor)
+from keras.models import Model, Sequential
+from keras.layers import Input, Reshape, Dense, Activation, Flatten, Conv2D, concatenate
+from keras.optimizers import Adam
+from keras.callbacks import TensorBoard
+
+
+from rl.agents.dqn import DQNAgent
+from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
+from rl.memory import SequentialMemory
+from rl.processors import MultiInputProcessor
+
+model = Sequential()
+model.add()
