@@ -1,23 +1,9 @@
-# -*- coding: utf-8 -*-
+from AirSimClient import *
 
-import numpy as np
-import gym
-
-import gym_airsim.envs
-import gym_airsim
-
-import argparse
-
-from keras.models import Model, Sequential
-from keras.layers import Input, Reshape, Dense, Activation, Flatten, Conv2D, concatenate
-from keras.optimizers import Adam
-from keras.callbacks import TensorBoard
-
-
-from rl.agents.dqn import DQNAgent
-from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
-from rl.memory import SequentialMemory
-from rl.processors import MultiInputProcessor
-
-model = Sequential()
-model.add()
+# connect to the AirSim simulator 
+client = CarClient()
+client.confirmConnection()
+client.enableApiControl(True)
+car_controls = CarControls()
+car_state = client.getCarState()
+print (car_state.kinematics_true)

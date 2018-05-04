@@ -13,7 +13,7 @@ from keras.layers import Input, Reshape, Dense, Flatten, Conv2D, concatenate
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard
 
-
+from callbacks import *
 from rl.agents.dqn import DQNAgent
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
@@ -79,7 +79,7 @@ train = True
 
 # Finally, we configure and compile our agent. You can use every built-in Keras optimizer and
 # even the metrics!
-memory = SequentialMemory(limit=60000, window_length=1)                        #reduce memmory
+memory = SequentialMemory(limit=100000, window_length=1)                        #reduce memmory
 
 processor = MultiInputProcessor(nb_inputs=4)
 
@@ -89,7 +89,7 @@ processor = MultiInputProcessor(nb_inputs=4)
 # (low eps). We also set a dedicated eps value that is used during testing. Note that we set it to 0.05c
 # so that the agent still performs some random actions. This ensures that the agent cannot get stuck.
 policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1., value_min=.1, value_test=0.0,
-                              nb_steps=60000)
+                              nb_steps=50000)
 
 dqn = DQNAgent(model=model, processor=processor, nb_actions=nb_actions, memory=memory, nb_steps_warmup=50, 
                enable_double_dqn=False, 
@@ -102,10 +102,12 @@ if train:
     # Okay, now it's time to learn something! We visualize the training here for show, but this
     # slows down training quite a lot. You can always safely abort the training prematurely using
     # Ctrl + C.
-    
-    tb_log_dir = 'logs/tmp'
-    callbacks = [TensorBoard(log_dir=tb_log_dir, histogram_freq=0)]
-    dqn.fit(env, callbacks=callbacks, nb_steps=150000, visualize=False, verbose=0, log_interval=100)
+    log_filename = 'dqn_{}_log.json'.format(args.env_name)
+    callbacks = [FileLogger(log_filename, interval=10)]
+    callbacks += [TrainEpisodeLogger()]
+    #tb_log_dir = 'logs/tmp'
+    #callbacks = [TensorBoard(log_dir=tb_log_dir, histogram_freq=0)]
+    dqn.fit(env, callbacks = callbacks, nb_steps=125000, visualize=False, verbose=0, log_interval=100)
     
     
     # After training is done, we save the final weights.

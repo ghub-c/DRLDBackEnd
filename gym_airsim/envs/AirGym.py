@@ -27,18 +27,17 @@ class AirSimEnv(gym.Env):
         self.sposition = np.zeros((2,), dtype=np.float32)
         self.sdistance = np.zeros((3,), dtype=np.float32)
         self.sgeofence = np.zeros((4,), dtype=np.float32)
-        
-        self.observation_space = self.state()
+       
         
         self.action_space = spaces.Discrete(3)
 		
-        self.goal = 	[6.83, -95.41]
+        self.goal = 	[137.5, -48.7]
         
         self.episodeN = 0
         self.stepN = 0 
         
         self.allLogs = { 'reward':[0] }
-        self.allLogs['distance'] = [95.654]
+        self.allLogs['distance'] = [145.87]
         self.allLogs['track'] = [-2]
         self.allLogs['action'] = [1]
 
@@ -151,7 +150,7 @@ class AirSimEnv(gym.Env):
         self.episodeN += 1
         
         self.allLogs = { 'reward': [0] }
-        self.allLogs['distance'] = [95.654]
+        self.allLogs['distance'] = [145.87]
         self.allLogs['track'] = [-2]
         self.allLogs['action'] = [1]
         

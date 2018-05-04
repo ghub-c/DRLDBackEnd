@@ -26,10 +26,10 @@ class myAirSimClient(MultirotorClient):
         self.home_ori = self.getOrientation()
         
         #Define your geofence inside the map
-        self.minx = -10
-        self.maxx = 10
-        self.miny = -120
-        self.maxy = 5
+        self.minx = -5
+        self.maxx = 150
+        self.miny = -70
+        self.maxy = 20
         
         self.z = -4
         
@@ -163,10 +163,10 @@ class myAirSimClient(MultirotorClient):
         xpos = self.getPosition().x_val
         ypos = self.getPosition().y_val
         
-        geox1 = xpos - self.maxx
-        geox2 = xpos - self.minx
-        geoy1 = ypos - self.maxy
-        geoy2 = ypos - self.miny
+        geox1 = self.maxx - xpos
+        geox2 = self.minx - xpos
+        geoy1 = self.maxy - ypos
+        geoy2 = self.miny - ypos
         
         geofence = np.array([geox1, geox2, geoy1, geoy2])
         
