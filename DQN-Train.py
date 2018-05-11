@@ -75,7 +75,8 @@ model = Model(
         outputs=predictions
         )
 
-train = True
+train = False
+print(model.summary)
 
 # Finally, we configure and compile our agent. You can use every built-in Keras optimizer and
 # even the metrics!
@@ -115,7 +116,7 @@ if train:
 
 else:
 
-    dqn.load_weights('dqn_AirSimEnv-v42_weights.h5f')
+    dqn.load_weights('checkpoint_reward_196.7627015494478.h5f')
     dqn.test(env, nb_episodes=10, visualize=False)
 
 
