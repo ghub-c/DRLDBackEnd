@@ -12,12 +12,15 @@ from keras.models import Model, Sequential
 from keras.layers import Input, Reshape, Dense, Flatten, Conv2D, concatenate
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard
+from keras.utils import plot_model
 
 from callbacks import *
 from rl.agents.dqn import DQNAgent
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.processors import MultiInputProcessor
+import os
+os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--mode', choices=['train', 'test'], default='train')
@@ -75,8 +78,11 @@ model = Model(
         outputs=predictions
         )
 
+plot_model(model, to_file='model.png')
+
 train = False
-print(model.summary)
+
+
 
 # Finally, we configure and compile our agent. You can use every built-in Keras optimizer and
 # even the metrics!
@@ -116,7 +122,7 @@ if train:
 
 else:
 
-    dqn.load_weights('checkpoint_reward_196.7627015494478.h5f')
+    dqn.load_weights('dqn_AirSimEnv-v42_weights.h5f')
     dqn.test(env, nb_episodes=10, visualize=False)
 
 

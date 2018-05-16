@@ -68,7 +68,6 @@ class myAirSimClient(MultirotorClient):
         start = time.time()
         duration = 0 
         
-        collided = False
         outside = self.geofence(self.minx, self.maxx, self.miny, self.maxy)
         
         if action == 0:
@@ -80,9 +79,10 @@ class myAirSimClient(MultirotorClient):
                     return True    
                 if outside == True:
                     return True
+            '''
             self.moveByVelocity(0, 0, 0, 1)
             self.rotateByYawRate(0, 1)
-            
+            '''
             
         if action == 1:
          
@@ -93,8 +93,7 @@ class myAirSimClient(MultirotorClient):
                     return True
                 if outside == True:
                     return True
-           self.moveByVelocity(0, 0, 0, 1)
-           self.rotateByYawRate(0, 1)
+
                 
             
         if action == 2:
@@ -106,14 +105,11 @@ class myAirSimClient(MultirotorClient):
                     return True
                 if outside == True:
                     return True
-                
-            self.moveByVelocity(0, 0, 0, 1)
-            self.rotateByYawRate(0, 1)
-                
+       
             
         
                 
-        return collided
+        return False
     
     def geofence(self, minx, maxx, miny, maxy):
         
