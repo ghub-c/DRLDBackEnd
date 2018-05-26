@@ -11,7 +11,7 @@ Requirements:
 [openAI gym](https://github.com/openai/gym)
 
 
-My test environment binaries for Win10 can be downlaoded [here](https://drive.google.com/open?id=1iNeK47r9e54Ba554rHY8o5ADeiDVyPLz).
+My test environment binaries for Win10 can be downloaded [here](https://drive.google.com/open?id=1iNeK47r9e54Ba554rHY8o5ADeiDVyPLz).
 
 Click here for a old (the performance is much better now) demo video:
 
