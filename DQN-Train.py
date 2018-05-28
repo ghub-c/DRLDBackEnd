@@ -118,7 +118,7 @@ if train:
     
     
     # After training is done, we save the final weights.
-    dqn.save_weights('dqn_{}_weights.h5f'.format(args.env_name), overwrite=True)
+    dqn.save_weights('dqn_{}_weights2.h5f'.format(args.env_name), overwrite=True)
 
 else:
 
