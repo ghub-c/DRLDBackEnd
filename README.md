@@ -11,7 +11,7 @@ Requirements:
 [openAI gym](https://github.com/openai/gym)
 
 
-My test environment binaries for Win10 can be downlaoded [here](https://drive.google.com/open?id=1iNeK47r9e54Ba554rHY8o5ADeiDVyPLz).
+My test environment binaries for Win10 can be downloaded [here](https://drive.google.com/open?id=1iNeK47r9e54Ba554rHY8o5ADeiDVyPLz).
 
 Click here for a old (the performance is much better now) demo video:
 
@@ -22,7 +22,7 @@ You can either train yourself or load the exciting weights by setting Train to T
 CAREFUL: When you cancel the training with STRG + C, weights are saved and will overright the already trained weights.
 
 #### State:
-We are taking as state input a depth image extended by the encoded information of the relative goal direction. Take a look at it by uncommenting [here](https://github.com/Kjell-K/AirGym/blob/master/gym_airsim/envs/myAirSimClient.py#L155). 
+We are taking as state input a depth image extended by the encoded information of the relative goal direction. 
 
 #### Action:
 For this environment, we force the quadcopter to move in a fix plane and therefore confront the obstacles. The action space consist of three discrete actions and are available at any state:
