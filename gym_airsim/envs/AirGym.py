@@ -125,7 +125,6 @@ class AirSimEnv(gym.Env):
         self.sgeofence = airgym.mapGeofence()
         
         state = self.state()
-        
         return state, reward, done, info
 
     def addToLog (self, key, value):

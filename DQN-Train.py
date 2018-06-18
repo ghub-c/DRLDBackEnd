@@ -50,6 +50,7 @@ image_model = Sequential()
 image_model.add(Conv2D(32, (4, 4), strides=(4, 4) ,activation='relu', input_shape=img_kshape, data_format = "channels_first"))
 image_model.add(Conv2D(64, (3, 3), strides=(2, 2),  activation='relu'))
 image_model.add(Flatten())
+print(image_model.summary())
 
 #Input and output of the Sequential model
 image_input = Input(img_kshape)
@@ -78,9 +79,10 @@ model = Model(
         outputs=predictions
         )
 
+
 plot_model(model, to_file='model.png')
 
-train = False
+train = True
 
 
 
@@ -99,7 +101,7 @@ policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1., valu
                               nb_steps=50000)
 
 dqn = DQNAgent(model=model, processor=processor, nb_actions=nb_actions, memory=memory, nb_steps_warmup=50, 
-               enable_double_dqn=False, 
+               enable_double_dqn=True, 
                enable_dueling_network=False, dueling_type='avg', 
                target_model_update=1e-2, policy=policy, gamma=.99)
 
@@ -118,11 +120,11 @@ if train:
     
     
     # After training is done, we save the final weights.
-    dqn.save_weights('dqn_{}_weights2.h5f'.format(args.env_name), overwrite=True)
+    dqn.save_weights('dqn_weights2.h5f'.format(args.env_name), overwrite=True)
 
 else:
 
     dqn.load_weights('dqn_AirSimEnv-v42_weights.h5f')
-    dqn.test(env, nb_episodes=10, visualize=False)
+    dqn.test(env, nb_episodes=100, visualize=False)
 
 
