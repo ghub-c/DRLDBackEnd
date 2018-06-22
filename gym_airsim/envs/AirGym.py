@@ -23,13 +23,13 @@ class AirSimEnv(gym.Env):
         
         
         
-        self.simage = np.zeros((30, 100), dtype=np.uint8)
-        self.sposition = np.zeros((2,), dtype=np.float32)
+        self.simage = np.zeros((20, 100), dtype=np.uint8)
+        self.svelocity = np.zeros((3,), dtype=np.float32)
         self.sdistance = np.zeros((3,), dtype=np.float32)
-        self.sgeofence = np.zeros((4,), dtype=np.float32)
+        self.sgeofence = np.zeros((6,), dtype=np.float32)
        
         
-        self.action_space = spaces.Discrete(3)
+        self.action_space = spaces.Discrete(6)
 		
         self.goal = 	[137.5, -48.7]
         
@@ -54,12 +54,10 @@ class AirSimEnv(gym.Env):
     
     def state(self):
         
-        return self.simage, self.sposition, self.sdistance, self.sgeofence
+        return self.simage, self.svelocity, self.sdistance, self.sgeofence
         
-    def computeReward(self, now, track_now):
+    def computeReward(self, now):
 	
-		# test if getPosition works here liek that
-		# get exact coordiantes of the tip
       
         distance_now = np.sqrt(np.power((self.goal[0]-now.x_val),2) + np.power((self.goal[1]-now.y_val),2))
         
@@ -82,7 +80,6 @@ class AirSimEnv(gym.Env):
         collided = airgym.take_action(action)
         
         now = airgym.getPosition()
-        track = airgym.goal_direction(self.goal, now) 
 
         if collided == True:
             done = True
@@ -91,7 +88,7 @@ class AirSimEnv(gym.Env):
        
         else: 
             done = False
-            reward, distance = self.computeReward(now, track)
+            reward, distance = self.computeReward(now)
         
         # Youuuuu made it
         if distance < 3:
@@ -106,21 +103,20 @@ class AirSimEnv(gym.Env):
         
         self.addToLog('reward', reward)
         rewardSum = np.sum(self.allLogs['reward'])
-        self.addToLog('distance', distance)
-        self.addToLog('track', track)      
+        self.addToLog('distance', distance)  
             
         # Terminate the episode on large cumulative amount penalties, 
         # since drone probably got into an unexpected loop of some sort
         if rewardSum < -300:
             done = True
        
-        sys.stdout.write("\r\x1b[K{}/{}==>reward/depth: {:.1f}/{:.1f}   \t {:.0f}  {:.0f}".format(self.episodeN, self.stepN, reward, rewardSum, track, action))
+        sys.stdout.write("\r\x1b[K{}/{}==>reward/depth: {:.1f}/{:.1f}   \t  {:.0f}".format(self.episodeN, self.stepN, reward, rewardSum, action))
         sys.stdout.flush()
         
         info = {"x_pos" : now.x_val, "y_pos" : now.y_val}
         
-        self.simage = airgym.getScreenDepthVis(track)
-        self.sposition = airgym.mapPosition()
+        self.simage = airgym.getScreenDepthVis()
+        self.svelocity = airgym.mapVelocity()
         self.sdistance = airgym.mapDistance(self.goal)
         self.sgeofence = airgym.mapGeofence()
         
@@ -150,15 +146,12 @@ class AirSimEnv(gym.Env):
         
         self.allLogs = { 'reward': [0] }
         self.allLogs['distance'] = [145.87]
-        self.allLogs['track'] = [-2]
         self.allLogs['action'] = [1]
         
         
-        now = airgym.getPosition()
-        track = airgym.goal_direction(self.goal, now)
-        
-        self.simage = airgym.getScreenDepthVis(track)
-        self.sposition = airgym.mapPosition()
+  
+        self.simage = airgym.getScreenDepthVis()
+        self.svelocity = airgym.mapVelocity()
         self.sdistance = airgym.mapDistance(self.goal)
         self.sgeofence = airgym.mapGeofence()
         

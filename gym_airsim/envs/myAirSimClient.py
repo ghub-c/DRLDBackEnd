@@ -30,94 +30,80 @@ class myAirSimClient(MultirotorClient):
         self.maxx = 150
         self.miny = -70
         self.maxy = 20
+        self.minz = -2
+        self.maxz = -20
         
         self.z = -4
         
-    def straight(self, duration, speed):
+    def movement(self, speed_x, speed_y, speed_z, duration):
+        
         pitch, roll, yaw  = self.getPitchRollYaw()
-        vx = math.cos(yaw) * speed
-        vy = math.sin(yaw) * speed
-        self.moveByVelocityZ(vx, vy, self.z, duration, DrivetrainType.ForwardOnly)
-        start = time.time()
-        return start, duration
-    
-    def yaw_right(self, duration):
-        self.rotateByYawRate(30, duration)
-        start = time.time()
-        return start, duration
-    
-    def yaw_left(self, duration):
-        self.rotateByYawRate(-30, duration)
-        start = time.time()
-        return start, duration
-    
+        vel = self.getVelocity()
+        drivetrain = DrivetrainType.ForwardOnly
+        yaw_mode = YawMode(is_rate= False, yaw_or_rate = 0)
+
+        self.moveByVelocity(vx = vel.x_val + speed_x,
+                            vy = vel.y_val + speed_y,
+                            vz = vel.z_val + speed_z,
+                            duration = duration,
+                            drivetrain = drivetrain,
+                            yaw_mode = yaw_mode)
+        
+
     
     def take_action(self, action):
         
 		 #check if copter is on level cause sometimes he goes up without a reason
-        x = 0
-        while self.getPosition().z_val < -5.0:
-            self.moveToZ(-4, 3)
-            time.sleep(1)
-            print(self.getPosition().z_val, "and", x)
-            x = x + 1
-            if x > 10:
-                return True 
-     
-    
+
         start = time.time()
-        duration = 0 
+        duration = 1 
         
-        outside = self.geofence(self.minx, self.maxx, self.miny, self.maxy)
+        outside = self.geofence(self.minx, self.maxx, 
+                                self.miny, self.maxy,
+                                self.minz, self.maxz)
         
         if action == 0:
-
-            start, duration = self.straight(1, 4)
+            
+            self.movement(0.5, 0, 0, duration)
+    
+        elif action == 1:
+         
+            self.movement(-0.5, 0, 0, duration)
+                
+        elif action == 2:
+            
+            self.movement(0, 0.5, 0, duration)
+            
+                
+        elif action == 3:
+                    
+            self.movement(0, -0.5, 0, duration)
+            
+        elif action == 4:
+                    
+            self.movement(0, 0, 0.5, duration)
+                
+        elif action == 5:
+                    
+            self.movement(0, 0, -0.5, duration)      
         
-            while duration > time.time() - start:
+        while duration > time.time() - start:
                 if self.getCollisionInfo().has_collided == True:
                     return True    
                 if outside == True:
                     return True
-            '''
-            self.moveByVelocity(0, 0, 0, 1)
-            self.rotateByYawRate(0, 1)
-            '''
-            
-        if action == 1:
-         
-           start, duration = self.yaw_right(0.8)
-            
-           while duration > time.time() - start:
-                if self.getCollisionInfo().has_collided == True:
-                    return True
-                if outside == True:
-                    return True
-
-                
-            
-        if action == 2:
-            
-            start, duration = self.yaw_left(1)
-            
-            while duration > time.time() - start:
-                if self.getCollisionInfo().has_collided == True:
-                    return True
-                if outside == True:
-                    return True
-       
-            
-        
                 
         return False
     
-    def geofence(self, minx, maxx, miny, maxy):
+    def geofence(self, minx, maxx, miny, maxy, minz, maxz):
         
         outside = False
         
         if (self.getPosition().x_val < minx) or (self.getPosition().x_val > maxx):
                     return True
         if (self.getPosition().y_val < miny) or (self.getPosition().y_val > maxy):
+                    return True
+        if (self.getPosition().z_val > minz) or (self.getPosition().z_val < maxz):
                     return True
                 
         return outside
@@ -144,7 +130,7 @@ class myAirSimClient(MultirotorClient):
         
         return ((math.degrees(track) - 180) % 360) - 180   
     
-    
+    '''
     def mapPosition(self):
         
         xval = self.getPosition().x_val
@@ -153,18 +139,29 @@ class myAirSimClient(MultirotorClient):
         position = np.array([xval, yval])
         
         return position
+    '''
+    def mapVelocity(self):
+        
+        vel = self.getVelocity()
+        
+        velocity = np.array([vel.x_val, vel.y_val, vel.z_val])
+        
+        return velocity
     
     def mapGeofence(self):
         
         xpos = self.getPosition().x_val
         ypos = self.getPosition().y_val
+        zpos = self.getPosition().z_val
         
         geox1 = self.maxx - xpos
         geox2 = self.minx - xpos
         geoy1 = self.maxy - ypos
         geoy2 = self.miny - ypos
+        geoz1 = self.maxz - zpos
+        geoz2 = self.minz - zpos
         
-        geofence = np.array([geox1, geox2, geoy1, geoy2])
+        geofence = np.array([geox1, geox2, geoy1, geoy2, geoz1, geoz2])
         
         return geofence
     
@@ -182,7 +179,7 @@ class myAirSimClient(MultirotorClient):
         
         return distances
     
-    def getScreenDepthVis(self, track):
+    def getScreenDepthVis(self):
 
         responses = self.simGetImages([ImageRequest(0, AirSimImageType.DepthPerspective, True, False)])
         img1d = np.array(responses[0].image_data_float, dtype=np.float)
@@ -206,7 +203,7 @@ class myAirSimClient(MultirotorClient):
        
         cut = small[20:40,:]
         
-        
+        '''
         info_section = np.zeros((10,cut.shape[1]),dtype=np.uint8) + 255
        
         info_section[9,:] = 0
@@ -221,12 +218,12 @@ class myAirSimClient(MultirotorClient):
             info_section[:,info_section.shape[1]-3:info_section.shape[1]]  = 0
            
         total = np.concatenate((info_section, cut), axis=0)
-     
+        '''
         
         #cv2.imshow("Test", total)
         #cv2.waitKey(0)
 
-        return total
+        return cut
 
 
     def AirSim_reset(self):

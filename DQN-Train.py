@@ -37,7 +37,7 @@ nb_actions = env.action_space.n
 
 #Obtaining shapes from Gym environment
 img_shape = env.simage.shape
-pos_shape = env.sposition.shape
+vel_shape = env.svelocity.shape
 dst_shape = env.sdistance.shape
 geo_shape = env.sgeofence.shape
 
@@ -57,17 +57,17 @@ image_input = Input(img_kshape)
 encoded_image = image_model(image_input)
 
 #Inputs and reshaped tensors for concatenate after with the image
-position_input = Input((1,) + pos_shape)
+velocity_input = Input((1,) + vel_shape)
 distance_input = Input((1,) + dst_shape)
 geofence_input = Input((1,) + geo_shape)
-pos = Reshape(pos_shape)(position_input)
+vel = Reshape(vel_shape)(velocity_input)
 dst = Reshape(dst_shape)(distance_input)
 geo = Reshape(geo_shape)(geofence_input)
 
 
 #Concatenation of image, position, distance and geofence values.
 #3 dense layers of 256 units
-denses = concatenate([encoded_image, pos, dst, geo])
+denses = concatenate([encoded_image, vel, dst, geo])
 denses = Dense(256, activation='relu')(denses)
 denses = Dense(256, activation='relu')(denses)
 denses = Dense(256, activation='relu')(denses)
@@ -75,14 +75,14 @@ denses = Dense(256, activation='relu')(denses)
 predictions = Dense(nb_actions, kernel_initializer='zeros', activation='linear')(denses)
 
 model = Model(
-        inputs=[image_input, position_input, distance_input, geofence_input],
+        inputs=[image_input, velocity_input, distance_input, geofence_input],
         outputs=predictions
         )
-
+print(model.summary())
 
 plot_model(model, to_file='model.png')
 
-train = True
+train = False
 
 
 
@@ -120,11 +120,11 @@ if train:
     
     
     # After training is done, we save the final weights.
-    dqn.save_weights('dqn_weights2.h5f'.format(args.env_name), overwrite=True)
+    dqn.save_weights('dqn_weights.h5f'.format(args.env_name), overwrite=True)
 
 else:
 
-    dqn.load_weights('dqn_AirSimEnv-v42_weights.h5f')
+    dqn.load_weights('dqn_weights.h5f')
     dqn.test(env, nb_episodes=100, visualize=False)
 
 
