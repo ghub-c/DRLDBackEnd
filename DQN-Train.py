@@ -50,7 +50,6 @@ image_model = Sequential()
 image_model.add(Conv2D(32, (4, 4), strides=(4, 4) ,activation='relu', input_shape=img_kshape, data_format = "channels_first"))
 image_model.add(Conv2D(64, (3, 3), strides=(2, 2),  activation='relu'))
 image_model.add(Flatten())
-print(image_model.summary())
 
 #Input and output of the Sequential model
 image_input = Input(img_kshape)
@@ -78,9 +77,7 @@ model = Model(
         inputs=[image_input, velocity_input, distance_input, geofence_input],
         outputs=predictions
         )
-print(model.summary())
 
-plot_model(model, to_file='model.png')
 
 train = False
 

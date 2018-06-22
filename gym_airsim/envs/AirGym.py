@@ -32,15 +32,15 @@ class AirSimEnv(gym.Env):
         self.action_space = spaces.Discrete(6)
 		
         self.goal = 	[137.5, -48.7]
+        self.distance = np.sqrt(np.power((self.goal[0]),2) + np.power((self.goal[1]),2))
         
         self.episodeN = 0
         self.stepN = 0 
         
         self.allLogs = { 'reward':[0] }
-        self.allLogs['distance'] = [145.87]
+        self.allLogs['distance'] = [self.distance]
         self.allLogs['track'] = [-2]
         self.allLogs['action'] = [1]
-
 
         self._seed()
         
@@ -52,18 +52,26 @@ class AirSimEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
     
+    def computeDistance(self, goal):
+        
+        distance = np.sqrt(np.power((self.goal[0]),2) + np.power((self.goal[1]),2))
+        
+        return distance
+        
+    
     def state(self):
         
         return self.simage, self.svelocity, self.sdistance, self.sgeofence
+    
         
     def computeReward(self, now):
 	
-      
         distance_now = np.sqrt(np.power((self.goal[0]-now.x_val),2) + np.power((self.goal[1]-now.y_val),2))
         
         distance_before = self.allLogs['distance'][-1]
               
         r = -1
+        
         
         r = r + (distance_before - distance_now)
             
@@ -103,8 +111,9 @@ class AirSimEnv(gym.Env):
         
         self.addToLog('reward', reward)
         rewardSum = np.sum(self.allLogs['reward'])
+        print(distance)
         self.addToLog('distance', distance)  
-            
+        
         # Terminate the episode on large cumulative amount penalties, 
         # since drone probably got into an unexpected loop of some sort
         if rewardSum < -300:
@@ -140,16 +149,25 @@ class AirSimEnv(gym.Env):
         totalrewards = np.sum(self.allLogs['reward'])
         with open("rewards.txt", "a") as myfile:
             myfile.write(str(totalrewards) + ", ")
-            
+        
+        
+        arr = np.array([[137.5, -48.7], [59.1, -15.1], [-62.3, -7.35], [123, 77.3]])
+        probs = [.25, .25, .25, .25]
+        indicies = np.random.choice(len(arr), 1, p=probs)
+        array = (arr[indicies])
+        list = (array.tolist())
+        self.goal = [item for sublist in list for item in sublist]
+
         self.stepN = 0
         self.episodeN += 1
         
+        distance = np.sqrt(np.power((self.goal[0]),2) + np.power((self.goal[1]),2))
         self.allLogs = { 'reward': [0] }
-        self.allLogs['distance'] = [145.87]
+        self.allLogs['distance'] = [distance]
         self.allLogs['action'] = [1]
         
-        
-  
+        print(self.goal)
+        print(distance)
         self.simage = airgym.getScreenDepthVis()
         self.svelocity = airgym.mapVelocity()
         self.sdistance = airgym.mapDistance(self.goal)
