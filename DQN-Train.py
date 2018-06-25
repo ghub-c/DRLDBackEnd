@@ -95,7 +95,7 @@ processor = MultiInputProcessor(nb_inputs=4)
 # (low eps). We also set a dedicated eps value that is used during testing. Note that we set it to 0.05c
 # so that the agent still performs some random actions. This ensures that the agent cannot get stuck.
 policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1., value_min=.1, value_test=0.0,
-                              nb_steps=50000)
+                              nb_steps=100000)
 
 dqn = DQNAgent(model=model, processor=processor, nb_actions=nb_actions, memory=memory, nb_steps_warmup=50, 
                enable_double_dqn=True, 
@@ -113,7 +113,7 @@ if train:
     callbacks += [TrainEpisodeLogger()]
     #tb_log_dir = 'logs/tmp'
     #callbacks = [TensorBoard(log_dir=tb_log_dir, histogram_freq=0)]
-    dqn.fit(env, callbacks = callbacks, nb_steps=125000, visualize=False, verbose=0, log_interval=100)
+    dqn.fit(env, callbacks = callbacks, nb_steps=250000, visualize=False, verbose=0, log_interval=100)
     
     
     # After training is done, we save the final weights.

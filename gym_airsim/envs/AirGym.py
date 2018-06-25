@@ -104,14 +104,20 @@ class AirSimEnv(gym.Env):
             if landed == True:
                 done = True
                 reward = 100.0
-            
                 with open("reached.txt", "a") as myfile:
                     myfile.write(str(self.episodeN) + ", ")
+           
             
-        
+            '''
+            landed = airgym.arrived()
+            if landed == True:
+                done = True
+                reward = 100.0
+            '''
+                
+            
         self.addToLog('reward', reward)
         rewardSum = np.sum(self.allLogs['reward'])
-        print(distance)
         self.addToLog('distance', distance)  
         
         # Terminate the episode on large cumulative amount penalties, 
@@ -150,14 +156,16 @@ class AirSimEnv(gym.Env):
         with open("rewards.txt", "a") as myfile:
             myfile.write(str(totalrewards) + ", ")
         
-        
+        '''
         arr = np.array([[137.5, -48.7], [59.1, -15.1], [-62.3, -7.35], [123, 77.3]])
         probs = [.25, .25, .25, .25]
         indicies = np.random.choice(len(arr), 1, p=probs)
         array = (arr[indicies])
         list = (array.tolist())
         self.goal = [item for sublist in list for item in sublist]
-
+        '''
+        self.goal = 	[137.5, -48.7]
+        self.goal
         self.stepN = 0
         self.episodeN += 1
         
@@ -166,8 +174,6 @@ class AirSimEnv(gym.Env):
         self.allLogs['distance'] = [distance]
         self.allLogs['action'] = [1]
         
-        print(self.goal)
-        print(distance)
         self.simage = airgym.getScreenDepthVis()
         self.svelocity = airgym.mapVelocity()
         self.sdistance = airgym.mapDistance(self.goal)
