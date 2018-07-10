@@ -26,13 +26,20 @@ class myAirSimClient(MultirotorClient):
         self.home_ori = self.getOrientation()
         
         #Define your geofence inside the map
+        '''
         self.minx = -100
         self.maxx = 150
         self.miny = -70
         self.maxy = 100
         self.minz = -2
         self.maxz = -20
-        
+        '''
+        self.minx = -100
+        self.maxx = 150
+        self.miny = -70
+        self.maxy = 100
+        self.minz = -2
+        self.maxz = -20
         self.z = -4
         
     def movement(self, speed_x, speed_y, speed_z, duration):

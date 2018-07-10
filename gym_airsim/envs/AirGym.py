@@ -100,12 +100,10 @@ class AirSimEnv(gym.Env):
         
         # Youuuuu made it
         if distance < 3:
-            landed = airgym.arrived()
-            if landed == True:
-                done = True
-                reward = 100.0
-                with open("reached.txt", "a") as myfile:
-                    myfile.write(str(self.episodeN) + ", ")
+            done = True
+            reward = 100.0
+            with open("reached.txt", "a") as myfile:
+                myfile.write(str(self.episodeN) + ", ")
            
             
             '''
@@ -113,6 +111,8 @@ class AirSimEnv(gym.Env):
             if landed == True:
                 done = True
                 reward = 100.0
+                with open("reached.txt", "a") as myfile:
+                    myfile.write(str(self.episodeN) + ", ")
             '''
                 
             
@@ -156,16 +156,12 @@ class AirSimEnv(gym.Env):
         with open("rewards.txt", "a") as myfile:
             myfile.write(str(totalrewards) + ", ")
         
-        '''
         arr = np.array([[137.5, -48.7], [59.1, -15.1], [-62.3, -7.35], [123, 77.3]])
         probs = [.25, .25, .25, .25]
         indicies = np.random.choice(len(arr), 1, p=probs)
         array = (arr[indicies])
         list = (array.tolist())
         self.goal = [item for sublist in list for item in sublist]
-        '''
-        self.goal = 	[137.5, -48.7]
-        self.goal
         self.stepN = 0
         self.episodeN += 1
         
