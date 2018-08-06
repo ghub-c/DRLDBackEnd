@@ -38,8 +38,8 @@ nb_actions = env.action_space.n
 #Obtaining shapes from Gym environment
 img_shape = env.simage.shape
 vel_shape = env.stotalvelocity.shape
-dst_shape = env.sdistance.shape
-geo_shape = env.sgeofence.shape
+dst_shape = env.stotaldistance.shape
+geo_shape = env.stotalgeofence.shape
 
 #Keras-rl interprets an extra dimension at axis=0
 #added on to our observations, so we need to take it into account

@@ -25,10 +25,12 @@ class AirSimEnv(gym.Env):
         
         self.simage = np.zeros((20, 100), dtype=np.uint8)
         self.svelocity = np.zeros((3,), dtype=np.float32)
-        self.stotalvelocity = np.zeros((12,), dtype=np.float32)
         self.sdistance = np.zeros((3,), dtype=np.float32)
         self.sgeofence = np.zeros((6,), dtype=np.float32)
        
+        self.stotalvelocity = np.zeros((12,), dtype=np.float32)
+        self.stotaldistance = np.zeros((12,), dtype=np.float32)
+        self.stotalgeofence = np.zeros((24,), dtype=np.float32)
     
         self.action_space = spaces.Discrete(6)
 		
@@ -44,7 +46,7 @@ class AirSimEnv(gym.Env):
         self.allLogs['action'] = [1]
         self.allLogs['svelocity'] = self.svelocity
         self.allLogs['sdistance'] = self.sdistance
-        self.allLogs['sgeofence'] = self.distance
+        self.allLogs['sgeofence'] = self.sgeofence
         
 
         self._seed()
@@ -64,11 +66,13 @@ class AirSimEnv(gym.Env):
         return distance
         
     
-    def state(self, prevVel):
+    def state(self, prevVel, prevDst, prevGeo):
         
         totalVel = np.concatenate([self.svelocity, prevVel])
+        totalDst = np.concatenate([self.sdistance, prevDst])
+        totalGeo = np.concatenate([self.sgeofence, prevGeo])
         
-        return self.simage, totalVel, self.sdistance, self.sgeofence
+        return self.simage, totalVel, totalDst, totalGeo
     
         
     def computeReward(self, now):
@@ -128,6 +132,8 @@ class AirSimEnv(gym.Env):
         self.addToLog('distance', distance)
         
         self.addToLog('svelocity', self.svelocity)
+        self.addToLog('sdistance', self.sdistance)
+        self.addToLog('sgeofence', self.sgeofence)
         
         # Terminate the episode on large cumulative amount penalties, 
         # since drone probably got into an unexpected loop of some sort
@@ -144,13 +150,11 @@ class AirSimEnv(gym.Env):
         self.sdistance = airgym.mapDistance(self.goal)
         self.sgeofence = airgym.mapGeofence()
         
-        prevVel = self.gatherPreviousValues()
+        preVel, preDst, preGeo = self.gatherPreviousValues()
         
-        state = self.state(prevVel)
+        state = self.state(preVel, preDst, preGeo)
         
         print("START")
-        print(prevVel)
-        print(self.svelocity)
         print(state)
         print("END")
         
@@ -167,9 +171,19 @@ class AirSimEnv(gym.Env):
         vel_twolast = self.allLogs['svelocity'][-2]
         vel_threelast = self.allLogs['svelocity'][-3]
         
-        preVel = np.concatenate([vel_last, vel_twolast, vel_threelast])
+        dst_last = self.allLogs['sdistance'][-1]
+        dst_twolast = self.allLogs['sdistance'][-2]
+        dst_threelast = self.allLogs['sdistance'][-3]
         
-        return preVel
+        geo_last = self.allLogs['sgeofence'][-1]
+        geo_twolast = self.allLogs['sgeofence'][-2]
+        geo_threelast = self.allLogs['sgeofence'][-3]
+        
+        preVel = np.concatenate([vel_last, vel_twolast, vel_threelast])
+        prevDst = np.concatenate([dst_last, dst_twolast, dst_threelast])
+        prevGeo = np.concatenate([geo_last, geo_twolast, geo_threelast])
+    
+        return preVel, prevDst, prevGeo
         
     def _reset(self):
         """
@@ -211,11 +225,21 @@ class AirSimEnv(gym.Env):
         self.addToLog('svelocity', [0, 0, 0])
         self.addToLog('svelocity', [0, 0, 0])
         self.addToLog('svelocity', [0, 0, 0])
+        self.allLogs['sdistance'] = [0, 0, 0, 0]
+        self.addToLog('sdistance', self.sdistance)
+        self.addToLog('sdistance', self.sdistance)
+        self.addToLog('sdistance', self.sdistance)
+        self.addToLog('sdistance', self.sdistance)
+        self.allLogs['sgeofence'] = [0, 0, 0, 0, 0, 0]
+        self.addToLog('sgeofence', self.sgeofence)
+        self.addToLog('sgeofence', self.sgeofence)
+        self.addToLog('sgeofence', self.sgeofence)
+        self.addToLog('sgeofence', self.sgeofence)
         
-        prevVel = self.gatherPreviousValues()
+        
+        preVel, preDst, preGeo = self.gatherPreviousValues()
        
-        state = self.state(prevVel)
-        
+        state = self.state(preVel, preDst, preGeo)
         
         
         return state
