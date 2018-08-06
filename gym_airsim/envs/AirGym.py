@@ -25,10 +25,11 @@ class AirSimEnv(gym.Env):
         
         self.simage = np.zeros((20, 100), dtype=np.uint8)
         self.svelocity = np.zeros((3,), dtype=np.float32)
+        self.stotalvelocity = np.zeros((12,), dtype=np.float32)
         self.sdistance = np.zeros((3,), dtype=np.float32)
         self.sgeofence = np.zeros((6,), dtype=np.float32)
        
-        
+    
         self.action_space = spaces.Discrete(6)
 		
         self.goal = 	[137.5, -48.7]
@@ -41,6 +42,10 @@ class AirSimEnv(gym.Env):
         self.allLogs['distance'] = [self.distance]
         self.allLogs['track'] = [-2]
         self.allLogs['action'] = [1]
+        self.allLogs['svelocity'] = self.svelocity
+        self.allLogs['sdistance'] = self.sdistance
+        self.allLogs['sgeofence'] = self.distance
+        
 
         self._seed()
         
@@ -59,9 +64,11 @@ class AirSimEnv(gym.Env):
         return distance
         
     
-    def state(self):
+    def state(self, prevVel):
         
-        return self.simage, self.svelocity, self.sdistance, self.sgeofence
+        totalVel = np.concatenate([self.svelocity, prevVel])
+        
+        return self.simage, totalVel, self.sdistance, self.sgeofence
     
         
     def computeReward(self, now):
@@ -118,7 +125,9 @@ class AirSimEnv(gym.Env):
             
         self.addToLog('reward', reward)
         rewardSum = np.sum(self.allLogs['reward'])
-        self.addToLog('distance', distance)  
+        self.addToLog('distance', distance)
+        
+        self.addToLog('svelocity', self.svelocity)
         
         # Terminate the episode on large cumulative amount penalties, 
         # since drone probably got into an unexpected loop of some sort
@@ -135,13 +144,32 @@ class AirSimEnv(gym.Env):
         self.sdistance = airgym.mapDistance(self.goal)
         self.sgeofence = airgym.mapGeofence()
         
-        state = self.state()
+        prevVel = self.gatherPreviousValues()
+        
+        state = self.state(prevVel)
+        
+        print("START")
+        print(prevVel)
+        print(self.svelocity)
+        print(state)
+        print("END")
+        
         return state, reward, done, info
 
     def addToLog (self, key, value):
         if key not in self.allLogs:
             self.allLogs[key] = []
         self.allLogs[key].append(value)
+        
+    def gatherPreviousValues(self):
+        
+        vel_last = self.allLogs['svelocity'][-1]
+        vel_twolast = self.allLogs['svelocity'][-2]
+        vel_threelast = self.allLogs['svelocity'][-3]
+        
+        preVel = np.concatenate([vel_last, vel_twolast, vel_threelast])
+        
+        return preVel
         
     def _reset(self):
         """
@@ -156,12 +184,16 @@ class AirSimEnv(gym.Env):
         with open("rewards.txt", "a") as myfile:
             myfile.write(str(totalrewards) + ", ")
         
+        '''
         arr = np.array([[137.5, -48.7], [59.1, -15.1], [-62.3, -7.35], [123, 77.3]])
         probs = [.25, .25, .25, .25]
         indicies = np.random.choice(len(arr), 1, p=probs)
         array = (arr[indicies])
         list = (array.tolist())
         self.goal = [item for sublist in list for item in sublist]
+        '''
+        self.goal = 	[137.5, -48.7]
+        
         self.stepN = 0
         self.episodeN += 1
         
@@ -175,6 +207,15 @@ class AirSimEnv(gym.Env):
         self.sdistance = airgym.mapDistance(self.goal)
         self.sgeofence = airgym.mapGeofence()
         
-        state = self.state()
+        self.allLogs['svelocity'] = [0, 0, 0]
+        self.addToLog('svelocity', [0, 0, 0])
+        self.addToLog('svelocity', [0, 0, 0])
+        self.addToLog('svelocity', [0, 0, 0])
+        
+        prevVel = self.gatherPreviousValues()
+       
+        state = self.state(prevVel)
+        
+        
         
         return state

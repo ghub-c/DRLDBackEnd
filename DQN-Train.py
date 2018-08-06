@@ -37,7 +37,7 @@ nb_actions = env.action_space.n
 
 #Obtaining shapes from Gym environment
 img_shape = env.simage.shape
-vel_shape = env.svelocity.shape
+vel_shape = env.stotalvelocity.shape
 dst_shape = env.sdistance.shape
 geo_shape = env.sgeofence.shape
 
@@ -79,7 +79,7 @@ model = Model(
         )
 
 
-train = False
+train = True
 
 
 
