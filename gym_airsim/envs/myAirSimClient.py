@@ -34,12 +34,13 @@ class myAirSimClient(MultirotorClient):
         self.minz = -2
         self.maxz = -20
         '''
-        self.minx = -100
-        self.maxx = 150
-        self.miny = -70
-        self.maxy = 100
+        self.minx = -50
+        self.maxx = 180
+        self.miny = -90
+        self.maxy = 30
         self.minz = -2
         self.maxz = -20
+        
         self.z = -4
         
     def movement(self, speed_x, speed_y, speed_z, duration):

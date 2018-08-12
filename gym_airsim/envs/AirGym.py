@@ -154,10 +154,6 @@ class AirSimEnv(gym.Env):
         
         state = self.state(preVel, preDst, preGeo)
         
-        print("START")
-        print(state)
-        print("END")
-        
         return state, reward, done, info
 
     def addToLog (self, key, value):
