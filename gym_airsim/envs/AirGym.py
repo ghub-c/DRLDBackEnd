@@ -194,7 +194,7 @@ class AirSimEnv(gym.Env):
         with open("rewards.txt", "a") as myfile:
             myfile.write(str(totalrewards) + ", ")
         
-        '''
+        
         arr = np.array([[137.5, -48.7], [59.1, -15.1], [-62.3, -7.35], [123, 77.3]])
         probs = [.25, .25, .25, .25]
         indicies = np.random.choice(len(arr), 1, p=probs)
@@ -203,7 +203,7 @@ class AirSimEnv(gym.Env):
         self.goal = [item for sublist in list for item in sublist]
         '''
         self.goal = 	[137.5, -48.7]
-        
+        '''
         self.stepN = 0
         self.episodeN += 1
         
