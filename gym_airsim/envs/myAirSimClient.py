@@ -34,6 +34,7 @@ class myAirSimClient(MultirotorClient):
         self.minz = -2
         self.maxz = -20
         '''
+        Small geofence limits
         self.minx = -50
         self.maxx = 180
         self.miny = -90
@@ -139,6 +140,7 @@ class myAirSimClient(MultirotorClient):
         return ((math.degrees(track) - 180) % 360) - 180   
     
     '''
+    Position data inside environment 
     def mapPosition(self):
         
         xval = self.getPosition().x_val
@@ -212,6 +214,7 @@ class myAirSimClient(MultirotorClient):
         cut = small[20:40,:]
         
         '''
+        Additional 10 x 100 image part
         info_section = np.zeros((10,cut.shape[1]),dtype=np.uint8) + 255
        
         info_section[9,:] = 0

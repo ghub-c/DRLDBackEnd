@@ -38,8 +38,10 @@ class AirSimEnv(gym.Env):
         self.distance = np.sqrt(np.power((self.goal[0]),2) + np.power((self.goal[1]),2))
         
         self.episodeN = 0
-        self.stepN = 0 
-        
+        self.stepN = 0
+
+        '''
+        Additional log info
         self.allLogs = { 'reward':[0] }
         self.allLogs['distance'] = [self.distance]
         self.allLogs['track'] = [-2]
@@ -47,7 +49,7 @@ class AirSimEnv(gym.Env):
         self.allLogs['svelocity'] = self.svelocity
         self.allLogs['sdistance'] = self.sdistance
         self.allLogs['sgeofence'] = self.sgeofence
-        
+        '''
 
         self._seed()
         
@@ -202,6 +204,7 @@ class AirSimEnv(gym.Env):
         list = (array.tolist())
         self.goal = [item for sublist in list for item in sublist]
         '''
+        Simple goal
         self.goal = 	[137.5, -48.7]
         '''
         self.stepN = 0
@@ -216,7 +219,9 @@ class AirSimEnv(gym.Env):
         self.svelocity = airgym.mapVelocity()
         self.sdistance = airgym.mapDistance(self.goal)
         self.sgeofence = airgym.mapGeofence()
-        
+
+        '''
+        Testing progressive logs
         self.allLogs['svelocity'] = [0, 0, 0]
         self.addToLog('svelocity', [0, 0, 0])
         self.addToLog('svelocity', [0, 0, 0])
@@ -231,7 +236,7 @@ class AirSimEnv(gym.Env):
         self.addToLog('sgeofence', self.sgeofence)
         self.addToLog('sgeofence', self.sgeofence)
         self.addToLog('sgeofence', self.sgeofence)
-        
+        '''
         
         preVel, preDst, preGeo = self.gatherPreviousValues()
        

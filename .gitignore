@@ -3,6 +3,7 @@
 
 # gedit files
 *~
+.*
 
 # Notepad++ files
 nppBackup/
